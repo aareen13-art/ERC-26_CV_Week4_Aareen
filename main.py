@@ -3,7 +3,9 @@ import mediapipe as mp
 from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision as mp_vision
 import time
+import pygame
 
+pygame.mixer.init()
 HAND_CONNECTIONS = [
     (0, 1), (1, 2), (2, 3), (3, 4),         # Thumb
     (0, 5), (5, 6), (6, 7), (7, 8),         # Index finger
@@ -43,7 +45,7 @@ def count_fingers(hand_landmarks, handedness_label):
     tips_id = [8, 12, 16, 20]
     pip_id = [6, 10, 14, 18]    
 
-    # counting fingers of the four fingers
+    # counting raised fingers of the four fingers
     for tip, pip in zip(tips_id, pip_id):
         if hand_landmarks[tip].y < hand_landmarks[pip].y: # if coordinate is lower then its above
             count += 1
@@ -98,6 +100,10 @@ while cap.isOpened():
 
             count += count_fingers(hand_landmarks, label)
 
+    if count in sounds_mapping:
+        pygame.mixer.music.load(sounds_mapping[count])
+        pygame.mixer.music.play()
+
     cv2.putText(frame,
                 f"Fingers: {count}",
                 (50,450),
@@ -106,7 +112,7 @@ while cap.isOpened():
                 (0,0,0),
                 2
     )
-    
+
     cv2.imshow("Gesture Media Player", frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'): # ord converts the char into ascii
