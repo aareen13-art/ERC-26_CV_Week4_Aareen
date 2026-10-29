@@ -104,6 +104,15 @@ while cap.isOpened():
         pygame.mixer.music.load(sounds_mapping[count])
         pygame.mixer.music.play()
 
+        cv2.putText(frame,
+                    f"Sound: {sounds_mapping[count][8:-4]}",
+                    (50,80),
+                    cv2.FONT_HERSHEY_COMPLEX,
+                    1,
+                    (255,0,0),
+                    2
+        )
+
     cv2.putText(frame,
                 f"Fingers: {count}",
                 (50,450),
