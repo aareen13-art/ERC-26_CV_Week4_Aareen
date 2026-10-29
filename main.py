@@ -77,6 +77,8 @@ landmarker = mp_vision.HandLandmarker.create_from_options(options)
 cap = cv2.VideoCapture(0)
 start_time = time.time()
 
+is_muted = False
+
 while cap.isOpened():
 
     count = 0
@@ -94,13 +96,16 @@ while cap.isOpened():
     result = landmarker.detect_for_video(mp_image, timestamp_ms)
 
     if result.hand_landmarks and result.handedness: # 0 if no hands detected
+
         for i, hand_landmarks in enumerate(result.hand_landmarks):
+
             draw_landmarks(frame, hand_landmarks)
             label = result.handedness[i][0].category_name
 
             count += count_fingers(hand_landmarks, label)
 
     if count in sounds_mapping:
+
         pygame.mixer.music.load(sounds_mapping[count])
         pygame.mixer.music.play()
 
@@ -122,10 +127,27 @@ while cap.isOpened():
                 2
     )
 
-    cv2.imshow("Gesture Media Player", frame)
+    cv2.putText(frame,
+                f"Volume: {0 if is_muted else 100}",
+                (450, 450),
+                cv2.FONT_HERSHEY_COMPLEX,
+                1,
+                (0,255,200),
+                2
+    )
 
-    if cv2.waitKey(1) & 0xFF == ord('q'): # ord converts the char into ascii
-        break
+    cv2.imshow("Gesture Media Player", frame)
+    
+    key = cv2.waitKey(1) & 0xFF # ord converts the char into ascii
+    if key == ord('m') or key == ord('M'):
+        is_muted = not is_muted
+        if is_muted:
+            pygame.mixer.music.set_volume(0.0)
+        else: 
+            pygame.mixer.music.set_volume(1.0)
+
+    if key == ord('q') or key == ord('Q'):
+            break
 
 cap.release()
 cv2.destroyAllWindows()
